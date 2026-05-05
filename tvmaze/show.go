@@ -17,7 +17,7 @@ type Show struct {
 		Imdb    string `json:"imdb"`
 	} `json:"externals"`
 	Updated  int       `json:"updated"`
-	Episodes []Episode `json:"-"`
+	Episodes []Episode `json:"episodes,omitempty"`
 }
 
 func FetchShow(id int) (Show, error) {
