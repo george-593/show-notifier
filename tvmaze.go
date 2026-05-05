@@ -26,13 +26,28 @@ type Show struct {
 			Href string `json:"href"`
 		} `json:"previousepisode"`
 	} `json:"_links"`
+	Episodes []Episode `json:"-"`
 }
 
-func fetchShow(id int) Show {
+type Episode struct {
+	ID       int    `json:"id"`
+	URL      string `json:"url"`
+	Name     string `json:"name"`
+	Season   int    `json:"season"`
+	Number   int    `json:"number"`
+	Type     string `json:"type"`
+	Airdate  string `json:"airdate"`
+	Airtime  string `json:"airtime"`
+	Airstamp string `json:"airstamp"`
+	Runtime  int    `json:"runtime"`
+	Summary  string `json:"summary"`
+}
+
+func fetchShow(id int) (Show, error) {
 	resp, err := http.Get("https://api.tvmaze.com/shows/" + strconv.Itoa(id))
 
 	if err != nil {
-		panic(err)
+		return Show{}, err
 	}
 
 	defer resp.Body.Close()
@@ -41,8 +56,27 @@ func fetchShow(id int) Show {
 	err = json.NewDecoder(resp.Body).Decode(&show)
 
 	if err != nil {
-		panic(err)
+		return Show{}, err
 	}
 
-	return show
+	return show, nil
+}
+
+func fetchEpisodes(showID int) ([]Episode, error) {
+	resp, err := http.Get("https://api.tvmaze.com/shows/" + strconv.Itoa(showID) + "/episodes")
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	var episodes []Episode
+	err = json.NewDecoder(resp.Body).Decode(&episodes)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return episodes, nil
 }
