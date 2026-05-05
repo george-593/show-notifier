@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"show-notifier/storage"
+	"show-notifier/telegram"
 	"show-notifier/tvmaze"
 	"strconv"
 	"strings"
@@ -102,6 +103,23 @@ func detectUnreleasedEpisodes(show tvmaze.Show) {
 	}
 }
 
+func detectNewEpisodes(store storage.Store) {
+	for _, show := range store.Shows {
+		for _, ep := range show.Episodes {
+			if ep.WasReleasedInLast24Hours() {
+				message := fmt.Sprintf("New episode released: %s S%s E%s %s", show.Name, strconv.Itoa(ep.Season), strconv.Itoa(ep.Number), ep.Name)
+				err := telegram.SendMessage(message)
+
+				if err != nil {
+					fmt.Printf("Failed to send message for %s S%s E%s: %v\n", show.Name, strconv.Itoa(ep.Season), strconv.Itoa(ep.Number), err)
+				} else {
+					fmt.Printf("Sent notification for new episode: %s S%s E%s\n", show.Name, strconv.Itoa(ep.Season), strconv.Itoa(ep.Number))
+				}
+			}
+		}
+	}
+}
+
 func menu(scanner *bufio.Scanner, store storage.Store) {
 	for {
 		fmt.Println("1. Add show")
@@ -131,6 +149,8 @@ func main() {
 
 	scanner := bufio.NewScanner(os.Stdin)
 	store, err := storage.LoadOrCreateStore(StorePath)
+
+	detectNewEpisodes(store)
 
 	if err != nil {
 		panic(err)

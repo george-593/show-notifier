@@ -2,7 +2,6 @@ package telegram
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -20,10 +19,8 @@ func SendMessage(message string) error {
 
 	data := fmt.Sprintf("chat_id=%s&text=%s", chatID, message)
 
-	resp, err := http.Post(url, "application/x-www-form-urlencoded", strings.NewReader(data))
+	_, err := http.Post(url, "application/x-www-form-urlencoded", strings.NewReader(data))
 
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println(string(body))
 	if err != nil {
 		return err
 	}
