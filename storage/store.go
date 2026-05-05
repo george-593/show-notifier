@@ -8,8 +8,9 @@ import (
 )
 
 type Store struct {
-	Updated time.Time
-	Shows   []tvmaze.Show
+	Updated     time.Time
+	Shows       []tvmaze.Show
+	NotifiedIDs []int
 }
 
 func (s *Store) AddShow(show tvmaze.Show) {
@@ -27,10 +28,26 @@ func (s *Store) ContainsShow(show tvmaze.Show) bool {
 	return false
 }
 
+func (s *Store) ContainsNotifiedID(episodeID int) bool {
+	for _, id := range s.NotifiedIDs {
+		if id == episodeID {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (s *Store) MarkNotified(episodeID int) {
+	s.NotifiedIDs = append(s.NotifiedIDs, episodeID)
+	s.Updated = time.Now()
+}
+
 func createStore(shows []tvmaze.Show) Store {
 	return Store{
-		Updated: time.Now(),
-		Shows:   shows,
+		Updated:     time.Now(),
+		Shows:       shows,
+		NotifiedIDs: []int{},
 	}
 }
 

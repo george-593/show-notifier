@@ -17,20 +17,6 @@ type Episode struct {
 	Airstamp string `json:"airstamp"`
 }
 
-func (e Episode) IsReleased() bool {
-	releaseTime, err := time.Parse(time.RFC3339, e.Airstamp)
-
-	if err != nil {
-		panic(err)
-	}
-
-	if releaseTime.After(time.Now()) {
-		return false
-	}
-
-	return true
-}
-
 func (e Episode) WasReleasedInLast24Hours() bool {
 	releaseTime, err := time.Parse(time.RFC3339, e.Airstamp)
 	last24Hours := time.Now().Add(-24 * time.Hour)
