@@ -4,10 +4,13 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"show-notifier/storage"
 	"show-notifier/tvmaze"
 	"strconv"
 	"strings"
 )
+
+var StorePath string = "store.json"
 
 func searchShow(scanner *bufio.Scanner) (tvmaze.Show, error) {
 
@@ -66,6 +69,12 @@ func menu(scanner *bufio.Scanner) {
 	fmt.Println("2. View shows")
 	fmt.Println("3. Exit")
 
+	store, err := storage.LoadOrCreateStore(StorePath)
+
+	if err != nil {
+		panic(err)
+	}
+
 	var input string
 	scanner.Scan()
 	input = scanner.Text()
@@ -80,6 +89,13 @@ func menu(scanner *bufio.Scanner) {
 
 		fmt.Printf("You selected: %+v\n", show)
 		detectUnreleasedEpisodes(show)
+		store.AddShow(show)
+
+		err = storage.Save(store, StorePath)
+
+		if err != nil {
+			panic(err)
+		}
 	case "2":
 		fmt.Println("View shows")
 	case "3":

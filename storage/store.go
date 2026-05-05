@@ -12,7 +12,7 @@ type Store struct {
 	Shows   []tvmaze.Show
 }
 
-func CreateStore(shows []tvmaze.Show) Store {
+func createStore(shows []tvmaze.Show) Store {
 	return Store{
 		Updated: time.Now(),
 		Shows:   shows,
@@ -34,8 +34,12 @@ func Save(store Store, path string) error {
 	return os.WriteFile(path, data, 0644)
 }
 
-func Load(path string) (Store, error) {
+func LoadOrCreateStore(path string) (Store, error) {
 	data, err := os.ReadFile(path)
+
+	if os.IsNotExist(err) {
+		return createStore([]tvmaze.Show{}), nil
+	}
 
 	if err != nil {
 		return Store{}, err
@@ -43,10 +47,6 @@ func Load(path string) (Store, error) {
 
 	var store Store
 	err = json.Unmarshal(data, &store)
-
-	if os.IsNotExist(err) {
-		return Store{}, nil
-	}
 
 	if err != nil {
 		return Store{}, err
