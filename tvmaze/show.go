@@ -7,25 +7,16 @@ import (
 )
 
 type Show struct {
-	ID        int      `json:"id"`
-	Name      string   `json:"name"`
-	Genres    []string `json:"genres"`
-	Premiered string   `json:"premiered"`
-	Ended     string   `json:"ended"`
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	Premiered string `json:"premiered"`
+	Ended     string `json:"ended"`
 	Externals struct {
 		Tvrage  int    `json:"tvrage"`
 		Thetvdb int    `json:"thetvdb"`
 		Imdb    string `json:"imdb"`
 	} `json:"externals"`
-	Updated int `json:"updated"`
-	Links   struct {
-		Self struct {
-			Href string `json:"href"`
-		} `json:"self"`
-		Previousepisode struct {
-			Href string `json:"href"`
-		} `json:"previousepisode"`
-	} `json:"_links"`
+	Updated  int       `json:"updated"`
 	Episodes []Episode `json:"-"`
 }
 
