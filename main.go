@@ -93,36 +93,37 @@ func detectUnreleasedEpisodes(show tvmaze.Show) {
 	}
 }
 
-func menu(scanner *bufio.Scanner) {
-	fmt.Println("1. Add show")
-	fmt.Println("2. View shows")
-	fmt.Println("3. Exit")
+func menu(scanner *bufio.Scanner, store storage.Store) {
+	for {
+		fmt.Println("1. Add show")
+		fmt.Println("2. View shows")
+		fmt.Println("3. Exit")
 
+		var input string
+		scanner.Scan()
+		input = scanner.Text()
+
+		switch input {
+		case "1":
+			addShow(scanner, &store)
+		case "2":
+			loadShow(&store)
+		case "3":
+			os.Exit(0)
+		default:
+			fmt.Println("Invalid input, please try again")
+		}
+
+	}
+}
+
+func main() {
+	scanner := bufio.NewScanner(os.Stdin)
 	store, err := storage.LoadOrCreateStore(StorePath)
 
 	if err != nil {
 		panic(err)
 	}
 
-	var input string
-	scanner.Scan()
-	input = scanner.Text()
-
-	switch input {
-	case "1":
-		addShow(scanner, &store)
-	case "2":
-		loadShow(&store)
-	case "3":
-		os.Exit(0)
-	default:
-		fmt.Println("Invalid input, please try again")
-	}
-
-	menu(scanner)
-}
-
-func main() {
-	scanner := bufio.NewScanner(os.Stdin)
-	menu(scanner)
+	menu(scanner, store)
 }
