@@ -56,6 +56,35 @@ func searchShow(scanner *bufio.Scanner) (tvmaze.Show, error) {
 	return tvmaze.Show{}, nil
 }
 
+func addShow(scanner *bufio.Scanner, store *storage.Store) {
+	show, err := searchShow(scanner)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("You selected: %+v\n", show)
+	detectUnreleasedEpisodes(show)
+	store.AddShow(show)
+
+	err = storage.Save(*store, StorePath)
+
+	if err != nil {
+		panic(err)
+	}
+}
+
+func loadShow(store *storage.Store) {
+	for _, show := range store.Shows {
+		fmt.Printf("Show: %s\n", show.Name)
+		detectUnreleasedEpisodes(show)
+	}
+
+	if len(store.Shows) == 0 {
+		fmt.Println("No shows added yet.")
+	}
+}
+
 func detectUnreleasedEpisodes(show tvmaze.Show) {
 	for _, ep := range show.Episodes {
 		if !ep.IsReleased() {
@@ -81,23 +110,9 @@ func menu(scanner *bufio.Scanner) {
 
 	switch input {
 	case "1":
-		show, err := searchShow(scanner)
-
-		if err != nil {
-			panic(err)
-		}
-
-		fmt.Printf("You selected: %+v\n", show)
-		detectUnreleasedEpisodes(show)
-		store.AddShow(show)
-
-		err = storage.Save(store, StorePath)
-
-		if err != nil {
-			panic(err)
-		}
+		addShow(scanner, &store)
 	case "2":
-		fmt.Println("View shows")
+		loadShow(&store)
 	case "3":
 		os.Exit(0)
 	default:
