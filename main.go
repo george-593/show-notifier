@@ -62,4 +62,10 @@ func main() {
 	}
 
 	fmt.Printf("You selected: %+v\n", search)
+
+	for _, ep := range search.Episodes {
+		if !ep.IsReleased() {
+			fmt.Printf("Unreleased episode: S%s E%s %s \n", strconv.Itoa(ep.Season), strconv.Itoa(ep.Number), ep.Name)
+		}
+	}
 }

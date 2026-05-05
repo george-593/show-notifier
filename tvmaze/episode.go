@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type Episode struct {
@@ -18,6 +19,20 @@ type Episode struct {
 	Airstamp string `json:"airstamp"`
 	Runtime  int    `json:"runtime"`
 	Summary  string `json:"summary"`
+}
+
+func (e Episode) IsReleased() bool {
+	releaseTime, err := time.Parse(time.RFC3339, e.Airstamp)
+
+	if err != nil {
+		panic(err)
+	}
+
+	if releaseTime.After(time.Now()) {
+		return false
+	}
+
+	return true
 }
 
 func FetchEpisodes(showID int) ([]Episode, error) {
