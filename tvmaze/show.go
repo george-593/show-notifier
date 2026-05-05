@@ -13,7 +13,7 @@ type Show struct {
 	Premiered string   `json:"premiered"`
 	Ended     string   `json:"ended"`
 	Externals struct {
-		Tvrage  string `json:"tvrage"`
+		Tvrage  int    `json:"tvrage"`
 		Thetvdb int    `json:"thetvdb"`
 		Imdb    string `json:"imdb"`
 	} `json:"externals"`
