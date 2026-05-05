@@ -39,6 +39,12 @@ func searchShow(scanner *bufio.Scanner) (tvmaze.Show, error) {
 		answer = scanner.Text()
 
 		if answer == "y" {
+			show.Episodes, err = tvmaze.FetchEpisodes(show.ID)
+
+			if err != nil {
+				return tvmaze.Show{}, err
+			}
+
 			return show, nil
 		}
 	}
@@ -47,25 +53,45 @@ func searchShow(scanner *bufio.Scanner) (tvmaze.Show, error) {
 	return tvmaze.Show{}, nil
 }
 
-func main() {
-	scanner := bufio.NewScanner(os.Stdin)
-	search, err := searchShow(scanner)
-
-	if err != nil {
-		panic(err)
-	}
-
-	search.Episodes, err = tvmaze.FetchEpisodes(search.ID)
-
-	if err != nil {
-		panic(err)
-	}
-
-	//fmt.Printf("You selected: %+v\n", search)
-
-	for _, ep := range search.Episodes {
+func detectUnreleasedEpisodes(show tvmaze.Show) {
+	for _, ep := range show.Episodes {
 		if !ep.IsReleased() {
 			fmt.Printf("Unreleased episode: S%s E%s %s \n", strconv.Itoa(ep.Season), strconv.Itoa(ep.Number), ep.Name)
 		}
 	}
+}
+
+func menu(scanner *bufio.Scanner) {
+	fmt.Println("1. Add show")
+	fmt.Println("2. View shows")
+	fmt.Println("3. Exit")
+
+	var input string
+	scanner.Scan()
+	input = scanner.Text()
+
+	switch input {
+	case "1":
+		show, err := searchShow(scanner)
+
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Printf("You selected: %+v\n", show)
+		detectUnreleasedEpisodes(show)
+	case "2":
+		fmt.Println("View shows")
+	case "3":
+		os.Exit(0)
+	default:
+		fmt.Println("Invalid input, please try again")
+	}
+
+	menu(scanner)
+}
+
+func main() {
+	scanner := bufio.NewScanner(os.Stdin)
+	menu(scanner)
 }
