@@ -1,0 +1,3 @@
+# ToDo
+- Notifications
+- Duplicate detection
