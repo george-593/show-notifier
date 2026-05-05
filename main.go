@@ -8,6 +8,8 @@ import (
 	"show-notifier/tvmaze"
 	"strconv"
 	"strings"
+
+	"github.com/joho/godotenv"
 )
 
 var StorePath string = "store.json"
@@ -125,6 +127,8 @@ func menu(scanner *bufio.Scanner, store storage.Store) {
 }
 
 func main() {
+	godotenv.Load()
+
 	scanner := bufio.NewScanner(os.Stdin)
 	store, err := storage.LoadOrCreateStore(StorePath)
 
