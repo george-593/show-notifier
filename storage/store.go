@@ -12,16 +12,26 @@ type Store struct {
 	Shows   []tvmaze.Show
 }
 
+func (s *Store) AddShow(show tvmaze.Show) {
+	s.Shows = append(s.Shows, show)
+	s.Updated = time.Now()
+}
+
+func (s *Store) ContainsShow(show tvmaze.Show) bool {
+	for _, s := range s.Shows {
+		if s.ID == show.ID {
+			return true
+		}
+	}
+
+	return false
+}
+
 func createStore(shows []tvmaze.Show) Store {
 	return Store{
 		Updated: time.Now(),
 		Shows:   shows,
 	}
-}
-
-func (s *Store) AddShow(show tvmaze.Show) {
-	s.Shows = append(s.Shows, show)
-	s.Updated = time.Now()
 }
 
 func Save(store Store, path string) error {

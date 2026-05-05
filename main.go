@@ -63,8 +63,15 @@ func addShow(scanner *bufio.Scanner, store *storage.Store) {
 		panic(err)
 	}
 
-	fmt.Printf("You selected: %+v\n", show)
+	fmt.Printf("You selected: %+v\n", show.Name)
+
+	if store.ContainsShow(show) {
+		fmt.Println("Show already exists.")
+		return
+	}
+
 	detectUnreleasedEpisodes(show)
+
 	store.AddShow(show)
 
 	err = storage.Save(*store, StorePath)

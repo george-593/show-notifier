@@ -1,3 +1,2 @@
 # ToDo
 - Notifications
-- Duplicate detection
