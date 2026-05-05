@@ -12,8 +12,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var StorePath string = os.Getenv("STORE_PATH")
-
 func detectNewEpisodes(store *storage.Store) {
 	for _, show := range store.Shows {
 		for _, ep := range show.Episodes {
@@ -26,7 +24,7 @@ func detectNewEpisodes(store *storage.Store) {
 				} else {
 					fmt.Printf("Sent notification for new episode: %s S%s E%s\n", show.Name, strconv.Itoa(ep.Season), strconv.Itoa(ep.Number))
 					store.MarkNotified(ep.ID)
-					err = storage.Save(*store, StorePath)
+					err = storage.Save(*store)
 
 					if err != nil {
 						fmt.Printf("Failed to save store after marking episode as notified: %v\n", err)
@@ -41,7 +39,7 @@ func main() {
 	godotenv.Load()
 
 	scanner := bufio.NewScanner(os.Stdin)
-	store, err := storage.LoadOrCreateStore(StorePath)
+	store, err := storage.LoadOrCreateStore()
 
 	if err != nil {
 		panic(err)

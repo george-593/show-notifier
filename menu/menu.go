@@ -10,8 +10,6 @@ import (
 	"strings"
 )
 
-var StorePath string = os.Getenv("STORE_PATH")
-
 func searchShow(scanner *bufio.Scanner) (tvmaze.Show, error) {
 
 	var search string
@@ -72,7 +70,7 @@ func addShow(scanner *bufio.Scanner, store *storage.Store) {
 
 	store.AddShow(show)
 
-	err = storage.Save(*store, StorePath)
+	err = storage.Save(*store)
 
 	if err != nil {
 		panic(err)
@@ -89,11 +87,45 @@ func loadShow(store *storage.Store) {
 	}
 }
 
+func removeShow(scanner *bufio.Scanner, store *storage.Store) {
+	for i, show := range store.Shows {
+		fmt.Printf("%d. %s\n", i+1, show.Name)
+	}
+
+	if len(store.Shows) == 0 {
+		fmt.Println("No shows added yet.")
+		return
+	}
+
+	fmt.Print("Enter the number of the show you want to remove: ")
+	var input string
+	scanner.Scan()
+	input = scanner.Text()
+
+	index, err := strconv.Atoi(input)
+
+	if err != nil || index < 1 || index > len(store.Shows) {
+		fmt.Println("Invalid input, please try again")
+		return
+	}
+
+	store.Shows = append(store.Shows[:index-1], store.Shows[index:]...)
+
+	err = storage.Save(*store)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Show removed successfully.")
+}
+
 func Menu(scanner *bufio.Scanner, store storage.Store) {
 	for {
 		fmt.Println("1. Add show")
 		fmt.Println("2. View shows")
-		fmt.Println("3. Exit")
+		fmt.Println("3. Remove show")
+		fmt.Println("4. Exit")
 
 		var input string
 		scanner.Scan()
@@ -105,6 +137,8 @@ func Menu(scanner *bufio.Scanner, store storage.Store) {
 		case "2":
 			loadShow(&store)
 		case "3":
+			removeShow(scanner, &store)
+		case "4":
 			os.Exit(0)
 		default:
 			fmt.Println("Invalid input, please try again")

@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+var StorePath string = "store.json"
+
 type Store struct {
 	Updated     time.Time
 	Shows       []tvmaze.Show
@@ -51,18 +53,18 @@ func createStore(shows []tvmaze.Show) Store {
 	}
 }
 
-func Save(store Store, path string) error {
+func Save(store Store) error {
 	data, err := json.Marshal(store)
 
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(StorePath, data, 0644)
 }
 
-func LoadOrCreateStore(path string) (Store, error) {
-	data, err := os.ReadFile(path)
+func LoadOrCreateStore() (Store, error) {
+	data, err := os.ReadFile(StorePath)
 
 	if os.IsNotExist(err) {
 		return createStore([]tvmaze.Show{}), nil
