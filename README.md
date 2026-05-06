@@ -1,5 +1,4 @@
 # Todo
-- Manual Update in menu
 - View Upcoming Episodes
 - Scheduler
 - Update from API when episodes run out

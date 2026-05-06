@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"show-notifier/notifier"
 	"show-notifier/storage"
+	"show-notifier/telegram"
 	"show-notifier/tvmaze"
 	"strconv"
 	"strings"
@@ -136,7 +138,8 @@ func Menu(scanner *bufio.Scanner, store storage.Store) {
 		fmt.Println("1. Add show")
 		fmt.Println("2. View shows")
 		fmt.Println("3. Remove show")
-		fmt.Println("4. Exit")
+		fmt.Println("4. Manually check for new episodes")
+		fmt.Println("5. Exit")
 
 		var input string
 		scanner.Scan()
@@ -150,6 +153,12 @@ func Menu(scanner *bufio.Scanner, store storage.Store) {
 		case "3":
 			removeShow(scanner, &store)
 		case "4":
+			err := notifier.DetectNewEpisodes(&store, telegram.Client{})
+
+			if err != nil {
+				panic(err)
+			}
+		case "5":
 			os.Exit(0)
 		default:
 			fmt.Println("Invalid input, please try again")
