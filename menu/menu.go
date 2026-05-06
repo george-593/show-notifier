@@ -68,6 +68,17 @@ func addShow(scanner *bufio.Scanner, store *storage.Store) {
 		return
 	}
 
+	if show.Ended != "" {
+		fmt.Print("This show has already ended, are you sure you want to add it? (y/n) ")
+
+		var answer string
+		scanner.Scan()
+		answer = scanner.Text()
+		if answer != "y" {
+			return
+		}
+	}
+
 	store.AddShow(show)
 
 	err = storage.Save(*store)
