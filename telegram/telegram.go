@@ -7,7 +7,9 @@ import (
 	"strings"
 )
 
-func SendMessage(message string) error {
+type Client struct{}
+
+func (c Client) SendMessage(message string) error {
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
 	chatID := os.Getenv("TELEGRAM_CHAT_ID")
 
