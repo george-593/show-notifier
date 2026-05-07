@@ -31,6 +31,20 @@ func (e Episode) WasReleasedInLast24Hours() bool {
 	return false
 }
 
+func (e Episode) WillReleaseInNextWeek() bool {
+	releaseTime, err := time.Parse(time.RFC3339, e.Airstamp)
+	nextWeek := time.Now().Add(7 * 24 * time.Hour)
+
+	if err != nil {
+		panic(err)
+	}
+
+	if releaseTime.After(time.Now()) && releaseTime.Before(nextWeek) {
+		return true
+	}
+	return false
+}
+
 func FetchEpisodes(showID int) ([]Episode, error) {
 	resp, err := http.Get("https://api.tvmaze.com/shows/" + strconv.Itoa(showID) + "/episodes")
 

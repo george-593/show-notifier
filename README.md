@@ -1,5 +1,4 @@
 # Todo
-- View Upcoming Episodes
 - Scheduler
 - Update from API when episodes run out
 - Docker deployment on server

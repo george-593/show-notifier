@@ -133,13 +133,31 @@ func removeShow(scanner *bufio.Scanner, store *storage.Store) {
 	fmt.Println("Show removed successfully.")
 }
 
+func getUpcomingEpisodes(store *storage.Store) {
+	var foundUpcoming bool
+	for _, show := range store.Shows {
+		for _, episode := range show.Episodes {
+			if episode.WillReleaseInNextWeek() {
+				message := fmt.Sprintf("Upcoming episode: %s S%s E%s %s airs on %s", show.Name, strconv.Itoa(episode.Season), strconv.Itoa(episode.Number), episode.Name, episode.Airdate)
+				fmt.Println(message)
+				foundUpcoming = true
+			}
+		}
+	}
+
+	if !foundUpcoming {
+		fmt.Println("No upcoming episodes in the next week.")
+	}
+}
+
 func Menu(scanner *bufio.Scanner, store storage.Store) {
 	for {
 		fmt.Println("1. Add show")
 		fmt.Println("2. View shows")
 		fmt.Println("3. Remove show")
 		fmt.Println("4. Manually check for new episodes")
-		fmt.Println("5. Exit")
+		fmt.Println("5. See upcoming episodes (1 Week)")
+		fmt.Println("6. Exit")
 
 		var input string
 		scanner.Scan()
@@ -159,6 +177,8 @@ func Menu(scanner *bufio.Scanner, store storage.Store) {
 				panic(err)
 			}
 		case "5":
+			getUpcomingEpisodes(&store)
+		case "6":
 			os.Exit(0)
 		default:
 			fmt.Println("Invalid input, please try again")
