@@ -1,5 +1,5 @@
 # Todo
-- Scheduler
+- Logging setup
 - Update from API when episodes run out
 - Docker deployment on server
 - Full interaction via telegram instead of CLI

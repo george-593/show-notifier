@@ -2,11 +2,13 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"show-notifier/menu"
 	"show-notifier/notifier"
 	"show-notifier/storage"
 	"show-notifier/telegram"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -21,11 +23,8 @@ func main() {
 		panic(err)
 	}
 
-	err = notifier.DetectNewEpisodes(&store, telegram.Client{})
-
-	if err != nil {
-		panic(err)
-	}
+	fmt.Println("Starting scheduler")
+	go notifier.StartScheduler(&store, telegram.Client{}, 6*time.Hour)
 
 	menu.Menu(scanner, store)
 }

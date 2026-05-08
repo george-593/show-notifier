@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"show-notifier/storage"
 	"strconv"
+	"time"
 )
 
 type Notifier interface {
@@ -31,4 +32,21 @@ func DetectNewEpisodes(store *storage.Store, n Notifier) error {
 		}
 	}
 	return nil
+}
+
+func StartScheduler(store *storage.Store, n Notifier, interval time.Duration) {
+	err := DetectNewEpisodes(store, n)
+
+	if err != nil {
+		fmt.Printf("Error during initial episode detection: %v\n", err)
+	}
+
+	ticker := time.NewTicker(interval)
+	for range ticker.C {
+		fmt.Println("Running scheduled episode detection") // Change to log when setup
+		err := DetectNewEpisodes(store, n)
+		if err != nil {
+			fmt.Printf("Error during scheduled episode detection: %v\n", err)
+		}
+	}
 }
