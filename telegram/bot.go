@@ -58,6 +58,7 @@ type State struct {
 var state = State{}
 
 func PollUpdates(store *storage.Store, n notifier.Notifier, offset int) {
+	n.SendMessage("Telegram Poller Started.")
 	for {
 		resp, err := http.Get("https://api.telegram.org/bot" + os.Getenv("TELEGRAM_BOT_TOKEN") + "/getUpdates?offset=" + strconv.Itoa(offset))
 
