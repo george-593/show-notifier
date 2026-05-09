@@ -2,6 +2,7 @@ package tvmaze
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
@@ -22,7 +23,8 @@ func (e Episode) WasReleasedInLast24Hours() bool {
 	last24Hours := time.Now().Add(-24 * time.Hour)
 
 	if err != nil {
-		panic(err)
+		slog.Error("Failed to parse episode release time", slog.String("error", err.Error()), slog.Int("episode_id", e.ID))
+		return false
 	}
 
 	if releaseTime.After(last24Hours) && releaseTime.Before(time.Now()) {
@@ -36,7 +38,8 @@ func (e Episode) WillReleaseInNextWeek() bool {
 	nextWeek := time.Now().Add(7 * 24 * time.Hour)
 
 	if err != nil {
-		panic(err)
+		slog.Error("Failed to parse episode release time", slog.String("error", err.Error()), slog.Int("episode_id", e.ID))
+		return false
 	}
 
 	if releaseTime.After(time.Now()) && releaseTime.Before(nextWeek) {

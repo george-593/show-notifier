@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
@@ -24,6 +25,7 @@ func (c Client) SendMessage(message string) error {
 	_, err := http.Post(url, "application/x-www-form-urlencoded", strings.NewReader(data))
 
 	if err != nil {
+		slog.Error("Failed to send Telegram message", slog.String("error", err.Error()))
 		return err
 	}
 

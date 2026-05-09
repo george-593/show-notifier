@@ -3,10 +3,10 @@ package menu
 import (
 	"bufio"
 	"fmt"
+	"log/slog"
 	"os"
 	"show-notifier/notifier"
 	"show-notifier/storage"
-	"show-notifier/telegram"
 	"show-notifier/tvmaze"
 	"strconv"
 	"strings"
@@ -60,7 +60,9 @@ func addShow(scanner *bufio.Scanner, store *storage.Store) {
 	show, err := searchShow(scanner)
 
 	if err != nil {
-		panic(err)
+		slog.Error("Failed to search for show", slog.String("error", err.Error()))
+		fmt.Println("An error occurred while searching for the show. Please try again.")
+		return
 	}
 
 	fmt.Printf("You selected: %+v\n", show.Name)
@@ -86,7 +88,9 @@ func addShow(scanner *bufio.Scanner, store *storage.Store) {
 	err = storage.Save(*store)
 
 	if err != nil {
-		panic(err)
+		slog.Error("Failed to save show", slog.String("error", err.Error()))
+		fmt.Println("An error occurred while saving the show. Please try again.")
+		return
 	}
 }
 
@@ -150,7 +154,7 @@ func getUpcomingEpisodes(store *storage.Store) {
 	}
 }
 
-func Menu(scanner *bufio.Scanner, store storage.Store) {
+func Menu(scanner *bufio.Scanner, store storage.Store, n notifier.Notifier) {
 	for {
 		fmt.Println("1. Add show")
 		fmt.Println("2. View shows")
@@ -171,11 +175,7 @@ func Menu(scanner *bufio.Scanner, store storage.Store) {
 		case "3":
 			removeShow(scanner, &store)
 		case "4":
-			err := notifier.DetectNewEpisodes(&store, telegram.Client{})
-
-			if err != nil {
-				panic(err)
-			}
+			notifier.DetectNewEpisodes(&store, n)
 		case "5":
 			getUpcomingEpisodes(&store)
 		case "6":

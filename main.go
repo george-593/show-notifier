@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	"log/slog"
 	"os"
 	"show-notifier/menu"
 	"show-notifier/notifier"
@@ -16,6 +16,10 @@ import (
 func main() {
 	godotenv.Load()
 
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	})))
+
 	scanner := bufio.NewScanner(os.Stdin)
 	store, err := storage.LoadOrCreateStore()
 
@@ -23,8 +27,9 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("Starting scheduler")
-	go notifier.StartScheduler(&store, telegram.Client{}, 6*time.Hour)
+	slog.Info("Starting scheduler")
+	client := telegram.Client{}
+	go notifier.StartScheduler(&store, client, 6*time.Hour)
 
-	menu.Menu(scanner, store)
+	menu.Menu(scanner, store, client)
 }
