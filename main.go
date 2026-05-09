@@ -31,5 +31,11 @@ func main() {
 	client := telegram.Client{}
 	go notifier.StartScheduler(&store, client, 6*time.Hour)
 
-	menu.Menu(scanner, store, client)
+	if os.Getenv("MODE") == "HEADLESS" {
+		slog.Info("Running in headless mode, skipping menu")
+		telegram.PollUpdates(&store, client, 0)
+	} else {
+		slog.Info("Running in normal mode")
+		menu.Menu(scanner, store, client)
+	}
 }
