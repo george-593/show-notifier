@@ -1,16 +1,81 @@
-# Todo
-- Fix store being storage.save instead of store.save
-- Deployment
-- Check updates endpoint for any updates every 24hr (contingency if we detect a missed update?)
+# Show Notifier
 
-# AI Generated Todo
-Quality of Life
-	•	Duplicate notification guard across restarts — ⁠NotifiedIDs grows forever and never gets cleaned up. Old episode IDs from years ago are being stored pointlessly. Prune any IDs older than 30 days on startup
-    •	Show status awareness — if a show's ⁠Ended field is set, stop checking it and notify you via Telegram that the show has ended so you can decide whether to remove it
-    •	Next episode display — in your ⁠/list Telegram command, show the next upcoming episode and its air date, not just the show name
-Robustness
-    •	Logging — replace your ⁠fmt.Printf error prints with proper structured logging using Go's ⁠log/slog package (added in Go 1.21). Useful when running headless in Docker
-    •	Graceful shutdown — listen for OS signals (⁠SIGTERM, ⁠SIGINT) and save the store cleanly before exiting rather than just dying mid-write
-Features
-    •	Telegram inline keyboards — when adding a show via Telegram, show search results as buttons rather than typing y/n	•	Episode countdown — notify you 24 hours before an episode airs as well as when it drops
-    •	Season premiere alerts — flag when it's a season premiere specifically, not just any episode
+A Go application that tracks your TV shows and sends Telegram notifications when new episodes are released. Shows and episode data are sourced from the [TVmaze API](https://www.tvmaze.com/api).
+
+## Technical Highlights
+
+- Telegram notifications when new episodes air
+- Telegram bot interface — ⁠/add, ⁠/remove, ⁠/list, ⁠/upcoming, ⁠/check
+- Local CLI for managing shows when running locally
+- Persistent JSON store with duplicate notification prevention
+- Scheduled background checks via goroutines
+
+## Environment Variables
+
+| Variable | Description | Required |
+|---|---|---|
+| `TELEGRAM_BOT_TOKEN` | Your Telegram bot token | Yes |
+| `TELEGRAM_CHAT_ID` | Your Telegram chat ID | Yes |
+| `MODE` | Set to `headless` to disable the CLI menu (recommended for server deployment) | No |
+
+## Telegram Commands
+
+| Command | Description |
+|---|---|
+| `/add <show name>` | Search for and add a show to your watchlist |
+| `/list` | List all tracked shows |
+| `/remove <show name>` | Remove a show from your watchlist |
+| `/upcoming` | Show episodes airing in the next 7 days |
+| `/check` | Manually trigger a check for new episodes |
+
+## Deployment
+
+### Install Go
+```bash
+wget https://go.dev/dl/go1.24.3.linux-amd64.tar.gz
+sudo tar -C /usr/local -xzf go1.24.3.linux-amd64.tar.gz
+export PATH=$PATH:/usr/local/go/bin
+```
+
+### Clone and Build
+```bash
+git clone https://github.com/yourusername/show-notifier.git
+cd show-notifier
+nano .env        # add your environment variables
+go build -o show-notifier .
+./show-notifier
+```
+
+### Set up as a systemd service
+```bash
+sudo nano /etc/systemd/system/show-notifier.service
+```
+
+```ini
+[Unit]
+Description=Show Notifier
+After=network.target
+
+[Service]
+Type=simple
+User=your-username
+WorkingDirectory=/home/your-username/show-notifier
+EnvironmentFile=/home/your-username/show-notifier/.env
+ExecStart=/home/your-username/show-notifier/show-notifier
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable show-notifier
+sudo systemctl start show-notifier
+```
+
+### Check logs
+```bash
+journalctl -u show-notifier -f
+```
