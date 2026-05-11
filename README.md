@@ -39,9 +39,10 @@ export PATH=$PATH:/usr/local/go/bin
 
 ### Clone and Build
 ```bash
-git clone https://github.com/yourusername/show-notifier.git
+sudo apt install git
+git clone https://github.com/george-593/show-notifier.git
 cd show-notifier
-nano .env        # add your environment variables
+nano .env
 go build -o show-notifier .
 ./show-notifier
 ```
@@ -59,9 +60,9 @@ After=network.target
 [Service]
 Type=simple
 User=your-username
-WorkingDirectory=/home/your-username/show-notifier
-EnvironmentFile=/home/your-username/show-notifier/.env
-ExecStart=/home/your-username/show-notifier/show-notifier
+WorkingDirectory=/home/show-notifier/show-notifier
+EnvironmentFile=/home/show-notifier/show-notifier/.env
+ExecStart=/home/show-notifier/show-notifier/show-notifier
 Restart=always
 RestartSec=10
 
