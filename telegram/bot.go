@@ -105,7 +105,7 @@ func handleMessage(store *storage.Store, n notifier.Notifier, message *Message) 
 	case "/start":
 		n.SendMessage("Welcome to the Show Notifier Bot! Use /add to add a show to your watchlist.")
 	case "/add":
-		handleAdd(n, args)
+		handleAdd(n, args, store)
 	case "/list":
 		handleList(store, n)
 	case "/remove":
@@ -119,7 +119,7 @@ func handleMessage(store *storage.Store, n notifier.Notifier, message *Message) 
 	}
 }
 
-func handleAdd(n notifier.Notifier, args string) {
+func handleAdd(n notifier.Notifier, args string, store *storage.Store) {
 	if args == "" {
 		n.SendMessage("Invalid input, please try adding a show to search for")
 		slog.Info("Received invalid add command", "args", args)
@@ -131,6 +131,12 @@ func handleAdd(n notifier.Notifier, args string) {
 	if err != nil {
 		slog.Error("Failed to search for show", slog.String("error", err.Error()))
 		n.SendMessage("Failed to search for show, please try again later.")
+		return
+	}
+
+	if len(res) == 1 {
+		slog.Info("Results only returned 1 episode, skipping selection callback")
+		handleAddCallback("1", n, store)
 		return
 	}
 
