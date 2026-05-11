@@ -1,6 +1,4 @@
 # Todo
-- Full interaction via telegram instead of CLI
-- Telegram msg on startup
 - Fix store being storage.save instead of store.save
 - Deployment
 - Check updates endpoint for any updates every 24hr (contingency if we detect a missed update?)
