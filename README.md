@@ -2,7 +2,7 @@
 
 A Go application that tracks your TV shows and sends Telegram notifications when new episodes are released. Shows and episode data are sourced from the [TVmaze API](https://www.tvmaze.com/api).
 
-## Technical Highlights
+## Features
 
 - Telegram notifications when new episodes air
 - Telegram bot interface — ⁠/add, ⁠/remove, ⁠/list, ⁠/upcoming, ⁠/check
