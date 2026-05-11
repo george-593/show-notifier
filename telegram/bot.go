@@ -233,6 +233,20 @@ func handleRemove(store *storage.Store, n notifier.Notifier, args string) {
 }
 
 func handleUpcoming(store *storage.Store, n notifier.Notifier) {
+	var foundUpcoming bool
+	for _, show := range store.Shows {
+		for _, episode := range show.Episodes {
+			if episode.WillReleaseInNextWeek() {
+				message := fmt.Sprintf("Upcoming episode: %s S%s E%s %s airs on %s", show.Name, strconv.Itoa(episode.Season), strconv.Itoa(episode.Number), episode.Name, episode.Airdate)
+				n.SendMessage(message)
+				foundUpcoming = true
+			}
+		}
+	}
+
+	if !foundUpcoming {
+		n.SendMessage("No upcoming episodes in the next week.")
+	}
 }
 
 func handleCheck(store *storage.Store, n notifier.Notifier) {
