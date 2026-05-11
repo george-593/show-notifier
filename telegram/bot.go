@@ -173,6 +173,13 @@ func handleAddCallback(id string, n notifier.Notifier, store *storage.Store) {
 		slog.Info("Show has already ended", "show_id", show.ID)
 	}
 
+	show.Episodes, err = tvmaze.FetchEpisodes(show.ID)
+	if err != nil {
+		slog.Error("Failed to fetch episodes", "show_id", show.ID, "error", err)
+		n.SendMessage("Failed to fetch episodes for " + show.Name + ". Please try again.")
+		return
+	}
+
 	store.AddShow(show)
 	n.SendMessage(fmt.Sprintf("Added %s to your watchlist!", show.Name))
 	slog.Info("Added show to watchlist", "show_id", show.ID)
