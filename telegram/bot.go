@@ -113,7 +113,7 @@ func handleMessage(store *storage.Store, n notifier.Notifier, message *Message) 
 	case "/upcoming":
 		handleUpcoming(store, n)
 	case "/check":
-		handleCheck(store, n)
+		notifier.DetectNewEpisodes(store, n)
 	default:
 		n.SendMessage("Unknown command. Try /add, /list, /remove, /upcoming, /check")
 	}
@@ -247,7 +247,4 @@ func handleUpcoming(store *storage.Store, n notifier.Notifier) {
 	if !foundUpcoming {
 		n.SendMessage("No upcoming episodes in the next week.")
 	}
-}
-
-func handleCheck(store *storage.Store, n notifier.Notifier) {
 }
