@@ -136,6 +136,8 @@ func handleAdd(n notifier.Notifier, args string, store *storage.Store) {
 
 	if len(res) == 1 {
 		slog.Info("Results only returned 1 episode, skipping selection callback")
+		state.AwaitingShowSelection = true
+		state.SearchResults = res
 		handleAddCallback("1", n, store)
 		return
 	}
