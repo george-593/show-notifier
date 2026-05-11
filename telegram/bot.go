@@ -106,6 +106,14 @@ func handleMessage(store *storage.Store, n notifier.Notifier, message *Message) 
 		n.SendMessage("Welcome to the Show Notifier Bot! Use /add to add a show to your watchlist.")
 	case "/add":
 		handleAdd(n, args)
+	case "/list":
+		handleList(store, n)
+	case "/remove":
+		handleRemove(store, n, args)
+	case "/upcoming":
+		handleUpcoming(store, n)
+	case "/check":
+		handleCheck(store, n)
 	default:
 		n.SendMessage("Unknown command. Try /add, /list, /remove, /upcoming, /check")
 	}
@@ -152,7 +160,7 @@ func handleAddCallback(id string, n notifier.Notifier, store *storage.Store) {
 		return
 	}
 
-	show := state.SearchResults[index].Show
+	show := state.SearchResults[index-1].Show
 
 	if store.ContainsShow(show) {
 		n.SendMessage("Show is already in your watchlist.")
@@ -179,4 +187,53 @@ func handleAddCallback(id string, n notifier.Notifier, store *storage.Store) {
 		n.SendMessage("An error occurred while saving your watchlist. Please try again later.")
 	}
 
+}
+
+func handleList(store *storage.Store, n notifier.Notifier) {
+	if len(store.Shows) == 0 {
+		n.SendMessage("Your watchlist is empty. Use /add to add shows.")
+		return
+	}
+
+	message := "Your watchlist:\n"
+	for i, show := range store.Shows {
+		date := "(" + strings.Split(show.Premiered, "-")[0] + ")"
+		message += strconv.Itoa(i+1) + ". " + show.Name + " " + date + "\n"
+	}
+
+	n.SendMessage(message)
+}
+
+func handleRemove(store *storage.Store, n notifier.Notifier, args string) {
+	if len(args) == 0 {
+		n.SendMessage("Please enter the name of the show that you would like to remove")
+		slog.Info("Received empty remove command")
+		return
+	}
+
+	args = strings.ToLower(args)
+	for i, show := range store.Shows {
+		if strings.ToLower(show.Name) == args {
+			store.Shows = append(store.Shows[:i], store.Shows[i+1:]...)
+
+			saveErr := storage.Save(*store)
+
+			if saveErr != nil {
+				n.SendMessage("An error occurred while saving your watchlist. Please try again later.")
+				slog.Error("Failed to save store after removing show", "error", saveErr)
+				return
+			}
+
+			n.SendMessage(fmt.Sprintf("Removed %s from your watchlist.", show.Name))
+			slog.Info("Removed show from watchlist", "show_id", show.ID)
+			return
+		}
+	}
+	n.SendMessage("Show not found in your watchlist.")
+}
+
+func handleUpcoming(store *storage.Store, n notifier.Notifier) {
+}
+
+func handleCheck(store *storage.Store, n notifier.Notifier) {
 }
