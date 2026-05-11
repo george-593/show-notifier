@@ -17,6 +17,7 @@ A Go application that tracks your TV shows and sends Telegram notifications when
 | `TELEGRAM_BOT_TOKEN` | Your Telegram bot token | Yes |
 | `TELEGRAM_CHAT_ID` | Your Telegram chat ID | Yes |
 | `MODE` | Set to `headless` to disable the CLI menu (recommended for server deployment) | No |
+| `STORE_PATH` | The path that the json store will be at (include.json) | Yes |
 
 ## Telegram Commands
 
@@ -39,7 +40,6 @@ export PATH=$PATH:/usr/local/go/bin
 
 ### Clone and Build
 ```bash
-sudo apt install git
 git clone https://github.com/george-593/show-notifier.git
 cd show-notifier
 nano .env
@@ -59,7 +59,7 @@ After=network.target
 
 [Service]
 Type=simple
-User=your-username
+User=show-notifier
 WorkingDirectory=/home/show-notifier/show-notifier
 EnvironmentFile=/home/show-notifier/show-notifier/.env
 ExecStart=/home/show-notifier/show-notifier/show-notifier
