@@ -80,6 +80,3 @@ sudo systemctl start show-notifier
 ```bash
 journalctl -u show-notifier -f
 ```
-
-# Future Improvements 
-- Fetch from updates endpoint every 24hr to get any show updates, if detected not ran in last 24 hr revert to week, then month, then full rebuild
