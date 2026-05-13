@@ -29,7 +29,7 @@ func main() {
 
 	slog.Info("Starting scheduler")
 	client := telegram.Client{}
-	go notifier.StartScheduler(&store, client, 6*time.Hour)
+	go notifier.StartScheduler(&store, client, 24*time.Hour)
 
 	if os.Getenv("MODE") == "HEADLESS" {
 		slog.Info("Running in headless mode, skipping menu")
