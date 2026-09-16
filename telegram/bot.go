@@ -134,6 +134,12 @@ func handleAdd(n notifier.Notifier, args string, store *storage.Store) {
 		return
 	}
 
+	if len(res) == 0 {
+		n.SendMessage("No results found for your search.")
+		slog.Info("No results found for search", "query", args)
+		return
+	}
+
 	if len(res) == 1 {
 		slog.Info("Results only returned 1 episode, skipping selection callback")
 		state.AwaitingShowSelection = true
