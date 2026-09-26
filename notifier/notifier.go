@@ -43,7 +43,7 @@ func DetectNewEpisodes(store *storage.Store, n Notifier) {
 func FetchUpdates(store *storage.Store) {
 	slog.Info("Fetching updates for all shows")
 
-	resp, err := http.Get("https://api.tvmaze.com/updates/shows?since=day")
+	resp, err := http.Get("https://api.tvmaze.com/updates/shows?since=week")
 
 	if err != nil {
 		slog.Error("Failed to fetch updates from TVMaze API", slog.String("error", err.Error()))
@@ -60,9 +60,13 @@ func FetchUpdates(store *storage.Store) {
 		return
 	}
 
-	for updatedShowID := range updates {
+	changed := false
+
+	// The feed covers a week so the same shows reappear for days. Only refetch
+	// a show whose timestamp is newer than the one already stored.
+	for updatedShowID, updatedAt := range updates {
 		for i, show := range store.Shows {
-			if show.ID == updatedShowID {
+			if show.ID == updatedShowID && updatedAt > show.Updated {
 				slog.Info("Updates returned for show, fetching updated info", slog.String("show_name", show.Name))
 				updatedShow, err := tvmaze.FetchShow(show.ID)
 
@@ -79,10 +83,16 @@ func FetchUpdates(store *storage.Store) {
 				}
 
 				store.Shows[i] = updatedShow
+				changed = true
 				slog.Info("Show info updated successfully", slog.String("show_name", updatedShow.Name))
 
 			}
 		}
+	}
+
+	if !changed {
+		slog.Info("No shows changed, skipping save")
+		return
 	}
 
 	err = storage.Save(*store)
@@ -94,14 +104,37 @@ func FetchUpdates(store *storage.Store) {
 	}
 }
 
-func StartScheduler(store *storage.Store, n Notifier, interval time.Duration) {
+func untilNextMidnight(now time.Time, loc *time.Location) time.Duration {
+	now = now.In(loc)
+	next := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, loc)
+	return next.Sub(now)
+}
+
+// StartScheduler runs two independent schedules on a single goroutine:
+// episode detection every detectInterval (purely local, no network), and a
+// refetch of show data from TVMaze at 00:00 in loc.
+func StartScheduler(store *storage.Store, n Notifier, detectInterval time.Duration, loc *time.Location) {
 	FetchUpdates(store)
 	DetectNewEpisodes(store, n)
 
-	ticker := time.NewTicker(interval)
-	for range ticker.C {
-		slog.Info("Running scheduled episode detection")
-		FetchUpdates(store)
-		DetectNewEpisodes(store, n)
+	detect := time.NewTicker(detectInterval)
+	defer detect.Stop()
+
+	refetch := time.NewTimer(untilNextMidnight(time.Now(), loc))
+	defer refetch.Stop()
+
+	for {
+		select {
+		case <-detect.C:
+			slog.Info("Running scheduled episode detection")
+			DetectNewEpisodes(store, n)
+		case <-refetch.C:
+			slog.Info("Running scheduled show refetch")
+			FetchUpdates(store)
+			// An episode pulled in by the refetch may already have aired, so
+			// detect straight away rather than waiting for the next tick.
+			DetectNewEpisodes(store, n)
+			refetch.Reset(untilNextMidnight(time.Now(), loc))
+		}
 	}
 }
